@@ -1,0 +1,9 @@
+/path/to/logfiles/*.log {
+    daily
+    missingok
+    rotate 7
+    notifempty
+    compress
+    delaycompress
+    nocreate
+}

@@ -1,0 +1,5 @@
+# SnapRAID sync schedule
+05 9,22 * * 2-7 root NONINTERACTIVE='true' EMAIL_ADDRESS="<user>@gmail.com" /root/snapraid_sync/snapraid_sync.sh > /dev/null
+
+# SnapRAID scrub schedule
+00 13 * * mon root NONINTERACTIVE='true' EMAIL_ADDRESS="<user>@gmail.com" /root/snapraid_sync/snapraid_sync.sh scrub > /dev/null
