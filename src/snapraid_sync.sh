@@ -4,7 +4,7 @@ set -e
 #                           User Definable Variables                           #
 #------------------------------------------------------------------------------#
 # Change these to your liking, or have them passed into this script through    #
-# environment variables. These variables are pretty safe to tweak.              #
+# environment variables. These variables are pretty safe to tweak.             #
 ################################################################################
 
 EMAIL_ADDRESS=${EMAIL_ADDRESS:-""}
@@ -44,7 +44,7 @@ MAIL_BIN=${MAIL_BIN:-"/usr/bin/mutt"}
 
 # The "main" function.
 main() {
-    if [ -n "${LOG_FILE}"]; then
+    if [ -n "${LOG_FILE}" ]; then
         LOG_FILE=$(mktemp)
         info "Starting SnapRAID Job"
         warning "No logfile given, logging to temporary file ${LOG_FILE}"
