@@ -1,5 +1,6 @@
 /path/to/logfiles/*.log {
     daily
+    dateext
     missingok
     rotate 7
     notifempty
