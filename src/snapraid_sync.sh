@@ -45,11 +45,11 @@ MAIL_BIN=${MAIL_BIN:-"/usr/bin/mutt"}
 # The "main" function.
 main() {
     if [ -n "${LOG_FILE}" ]; then
+        info "Starting SnapRAID Job"
+    else
         LOG_FILE="$(mktemp /tmp/snapraid_$(date +%Y-%m-%dT%H%M%S%z).XXXX.log)"
         info "Starting SnapRAID Job"
         warning "No logfile given, logging to temporary file ${LOG_FILE}"
-    else
-        info "Starting SnapRAID Job"
     fi
 
     # Check any input arguments that may or may not have been supplied.
