@@ -14,6 +14,7 @@ parse_parity_files() {
 check_parity_files() {
     nbr_parity_files=0
     local valid_parity_files=0
+
     while read parity_file; do
         nbr_parity_files=$((nbr_parity_files+1))
         if [ -f "${parity_file}" ]; then
@@ -22,6 +23,7 @@ check_parity_files() {
             warning "Could not find parity file '${parity_file}'"
         fi
     done <<<$(parse_parity_files)
+
     if [ "${valid_parity_files}" -eq 0 ]; then
         local str="Could not find any parity files"
         error "${str}"
@@ -43,8 +45,8 @@ parse_content_files() {
 check_content_files() {
     nbr_content_files=0
     local valid_content_files=0
-    while read content_file
-    do
+
+    while read content_file; do
         nbr_content_files=$((nbr_content_files+1))
         if [ -f "${content_file}" ]; then
             valid_content_files=$((valid_content_files+1))
@@ -52,6 +54,7 @@ check_content_files() {
             warning "Could not find content file '${content_file}'"
         fi
     done <<<$(parse_content_files)
+
     if [ "${valid_content_files}" -eq 0 ]; then
         local str="Could not find any content files"
         error "${str}"
@@ -63,6 +66,7 @@ check_content_files() {
             exit 1
         fi
     fi
+
     if [ "${nbr_content_files}" -lt "${nbr_parity_files}" ]; then
         warning "SnapRAID demands at least 'nbr of parity files + 1' content files"
     fi
@@ -227,9 +231,9 @@ should_scrub() {
 
 # After a 'sync' or a 'scrub' has completed, take a look at the log output to
 # see if it is missing some of the indicators which signify that everything
-# wen well.
+# went well.
 check_snapraid_status() {
-    # Get extra information from the status command.
+    # Get extra information from the 'status' command.
     run_snapraid status tmp_file
     local no_error=$(cat ${tmp_file} | tail -n 6 | grep -oP 'No error detected.' || (echo "false"))
 

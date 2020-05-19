@@ -49,13 +49,13 @@ main() {
     else
         LOG_FILE="$(mktemp /tmp/snapraid_$(date +%Y-%m-%dT%H%M%S%z).XXXX.log)"
         info "Starting SnapRAID Job"
-        warning "No logfile given, logging to temporary file ${LOG_FILE}"
+        warning "No logfile given, logging to temporary file '${LOG_FILE}'"
     fi
 
     # Check any input arguments that may or may not have been supplied.
     check_input_arguments "$@"
 
-    # Make sure we have the necessary files and variables.
+    # Make sure we have all the necessary files and variables.
     check_integrity
 
     # Touch all files with zero sub-second timestamp.
@@ -66,7 +66,7 @@ main() {
 
     # Determine if a 'sync' should be run.
     if should_sync; then
-        info "Running 'sync' job"
+        info "Running sync job"
         echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Starting sync job" >> ${mail_body}
         echo "" >> ${mail_body}
 
@@ -85,7 +85,7 @@ main() {
 
     # Determine if a 'scrub' should be run.
     if should_scrub; then
-        info "Running 'scrub' job - this might take a very long time"
+        info "Running scrub job - this might take a very long time"
         echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Starting scrub job" >> ${mail_body}
 
         run_snapraid "scrub -p ${SCRUB_PERCENT} -o ${SCRUB_AGE}" log
