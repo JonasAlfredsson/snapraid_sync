@@ -131,7 +131,7 @@ sub_zero_touch(){
 check_diff() {
     info "Running SnapRAID 'diff' command"
     run_snapraid diff tmp_file
-    cat "${tmp_file}" >> ${LOG_FILE}
+    cat "${tmp_file}" >> ${LOG_FILE}  # Add to main log file as well.
     info "SnapRAID 'diff' finished"
 
     # Try to extract all the values.
@@ -144,13 +144,12 @@ check_diff() {
     # Sanity check to make sure that we were able to get all expected values
     # from the output of the 'diff' job.
     if [ -z "${ADD_COUNT}" -o -z "${DEL_COUNT}" -o -z "${UPDATE_COUNT}" -o -z "${MOVE_COUNT}" -o -z "${COPY_COUNT}" ]; then
-        # We could not read one or more of the expected values, something is
-        # wrong. Print an error, and attach the 'diff' command's output to the
-        # main log file.
+        # We could not read one or more of the expected values, which means that
+        # something is wrong. Print an error, attach the 'diff' command's
+        # output to the mail and exit the script.
         local str="Failed to extract one or more count values from 'diff' job"
         error "${str}"
         error "A=${ADD_COUNT}, D=${DEL_COUNT}, U=${UPDATE_COUNT}, M=${MOVE_COUNT}, C=${COPY_COUNT}"
-        cat ${tmp_file} >> ${LOG_FILE}
 
         # Assemble an email with these details.
         echo "${str}." >> ${mail_body}
