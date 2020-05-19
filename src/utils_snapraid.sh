@@ -9,7 +9,7 @@
 # Find all parity files and check if they exist. Exit if there are no valid
 # parity files present.
 parse_parity_files() {
-    cat ${CONFIG_FILE} | sed -r -n 's/^[2-6]?-?parity (.*)$/\1/p'
+    cat ${CONFIG_FILE} | sed -r -n 's/^[2-6]?-?parity (.+)$/\1/p'
 }
 check_parity_files() {
     nbr_parity_files=0
@@ -38,7 +38,7 @@ check_parity_files() {
 # Find all content files and check if they exist. Exit if there are no valid
 # content files present.
 parse_content_files() {
-    cat ${CONFIG_FILE} | sed -r -n 's/^content (.*)$/\1/p'
+    cat ${CONFIG_FILE} | sed -r -n 's/^content (.+)$/\1/p'
 }
 check_content_files() {
     nbr_content_files=0
