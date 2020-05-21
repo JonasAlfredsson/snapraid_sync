@@ -59,7 +59,7 @@ sudo apt install mutt
 Mutt then needs to be properly configured so it is able to send emails to you.
 You will need an account on some other email service (Gmail/Hotmail) which can
 be used to login to and send emails from. In the `examples/` folder there is an
-example `muttrc` file which has been configured to use a Gmail account. You
+example `muttrc` file that has been configured to use a Gmail account. You
 will only need to change the `<user>` name/mail and `<supersectret>` password
 to something that you control.
 
@@ -85,7 +85,7 @@ and clone this repository from GitHub:
 git clone git@github.com:JonasAlfredsson/snapraid_sync.git
 ```
 
-Inside the `src/` directory there will be four files that needs to be kept
+Inside the `src/` directory there will be four files which needs to be kept
 together for this script to work as intended. The `snapraid_sync.sh` file is
 the main executable for this project, and it will source the `utils_*` files
 during runtime, so do not separate them.
@@ -122,7 +122,7 @@ These variables are read from the environment when this script is started, which
 makes it easy to quickly point to another SnapRAID configuration file in case
 you have multiple arrays on your system.
 
-Here are all the available variables, and their default values if nothing is
+Here are all the available variables and their default values if nothing is
 provided from the environment. If you are only using this script for a single
 array/setup on a single computer, it is perfectly fine to go into this script
 and manually change the defaults directly in the code. This way you will not
@@ -144,7 +144,7 @@ need to prepend any additional settings every time you run it.
 - `SCRUB_AGE`: Only scrub files which are older than this amount of days
                (default: `"10"`)
 - `EMAIL_SUBJECT_PREFIX`: A prefix which will be added to the subject line of
-                          all notification mails
+                          all notification mails \
                           (default: `"SnapRAID on $(hostname) - "`)
 - `MAIL_ATTACH_LOG`: Attach the entire log file to the notification mail
                      (default: `"false"`)
@@ -191,9 +191,9 @@ However, if this is the first time running a "sync", or you have deleted some
 files, it will complain that the threshold values have been exceeded, and the
 script will exit with an error. If running in
 "[non-interactive mode](#non-interactive-execution)" the script will also send
-an email to notify you about this problem. To override this you will need to set
-the environment variable `FORCE_SYNC` to "true", which can be achieved with
-either of these two options:
+an email to notify you about this problem. To override this error you will need
+to set the environment variable `FORCE_SYNC` to "true", which can be achieved
+with either of these two options:
 
 ```bash
 sudo ./snapraid_sync.sh force
@@ -204,8 +204,8 @@ sudo FORCE_SYNC="true" ./snapraid_sync.sh
 ```
 
 The script will then not exit when threshold values are exceeded, but rather
-stop and ask the user to confirm (with a `Y`) that a "sync" should be performed
-irregardless of the "diff" status.
+stop and ask the user to confirm (with a "`Y`") that a "sync" should be
+performed irregardless of the "diff" status.
 
 If this safety-prompt is annoying, or you are trying to automate everything, it
 can be turned off by setting the environment variable `NONINTERACTIVE` to
@@ -259,12 +259,12 @@ you do not trust you email provider you might not want it to know about the
 names of the files which you have on your computer. Therefore the default of
 this setting is "false".
 
-In the example cron file there are two entries present, with two different
-schedules. The first one will trigger every day, except Monday, at 09:05 and
-22:05 to run a "sync". The second one will only run on Mondays at 13:00, and
-then it will also run a "scrub" in addition to the "sync" (see the trailing
-"scrub" command). In both of these cases the output is routed to `/dev/null`,
-since we collect all of it in the `LOG_FILE` instead.
+Nevertheless, in the example cron file there are two entries present with two
+different schedules. The first one will trigger every day, except Monday, at
+09:05 and 22:05 to run a "sync". The second one will only run on Mondays at
+13:00, and then it will also run a "scrub" in addition to the "sync" (see the
+trailing "scrub" command). In both of these cases the output is routed to
+`/dev/null`, since we collect all of it in the `LOG_FILE` instead.
 
 The `crond` file needs to be renamed and placed under `/etc/cron.d/` to work. A
 suggestion might be something like this:
