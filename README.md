@@ -32,27 +32,24 @@ build my own solution from that knowledge.
 
 
 
-# Preparations
+# Installation
 
-In order to use all of the features this script has to offer, some preparations
-are necessary.
-
-
-## Requirements
-### SnapRAID
-The most critical part of this script is of course that you have installed
-[SnapRAID][6], and have created a [valid configuration file][7] for your array.
-ZackReed has a good guide on how to [install SnapRAID][8] as well, in addition
-to his version of this script mentioned [above](#acknowledgments-and-motive).
+## SnapRAID
+The most critical part, in order for this script to work, is of course that you
+have installed [SnapRAID][6] and have created a valid [configuration file][7]
+for your array. ZackReed has a good guide on how to [install SnapRAID][8] as
+well, in addition to his version of this script that is
+[linked above](#acknowledgments-and-motive).
 
 However, as mentioned in the introduction, for those who like Ansible it might
-be interesting to check out my [Ansible "SnapRAID" role][1] as well.
+be interesting to check out my [Ansible "SnapRAID" role][1] as well, if you
+don't feel like you want to do all the installation steps manually.
 
-### Mutt
+## Mutt
 If you want to be notified by email, when syncs are successful or something
 goes wrong, you will need to install [`mutt`][9]. This is a very lightweight
 email client that is able to authenticate with other IMAP services, which is
-necessary if you want to send emails out to the world wide web, and it can be
+necessary if you want to send emails out over the world wide web, and it can be
 installed with the following command:
 
 ```bash
@@ -80,7 +77,7 @@ When this is done you can type `sudo mutt` in the terminal to test to read/send
 emails.
 
 
-## Installation
+## snapraid_sync
 To install this script you should move into a suitable directory of your choice
 and clone this repository from GitHub:
 
@@ -114,6 +111,57 @@ By sourcing the edited file again, or just opening a new terminal, it should
 now be possible to use `snapraid_sync.sh` without having to provide the full
 path.
 
+> Please also read the section about [log rotation](#log-rotation) if you want
+  to keep your server more organized.
+
+
+
+# Environment Variables
+
+These variables are read from the environment when this script is started, which
+makes it easy to quickly point to another SnapRAID configuration file in case
+you have multiple arrays on your system.
+
+Here are all the available variables, and their default values if nothing is
+provided from the environment. If you are only using this script for a single
+array/setup on a single computer, it is perfectly fine to go into this script
+and manually change the defaults directly in the code. This way you will not
+need to prepend any additional settings every time you run it.
+
+### Important
+- `EMAIL_ADDRESS`: The address which the notification emails should be sent to
+                   (default: `""` [i.e. disabled])
+- `DELETE_THRESHOLD`: Threshold value for deleted files, if exceeded no sync
+                      will be made (default: `"0"`)
+- `UPDATE_THRESHOLD`: Threshold value for updated files, if exceeded no sync
+                      will be made (default: `"-1"` [`"-1"` for disable])
+- `CONFIG_FILE`: The location of the SnapRAID array's configuration file
+                 (default: `"/etc/snapraid.conf"`)
+
+### Optional
+- `SCRUB_PERCENT`: The percentage of the array which should be scrubbed when
+                   "scrub" is called (default: `"8"`)
+- `SCRUB_AGE`: Only scrub files which are older than this amount of days
+               (default: `"10"`)
+- `EMAIL_SUBJECT_PREFIX`: A prefix which will be added to the subject line of
+                          all notification mails
+                          (default: `"SnapRAID on $(hostname) - "`)
+- `MAIL_ATTACH_LOG`: Attach the entire log file to the notification mail
+                     (default: `"false"`)
+
+### Additional - Do not change these unless you know what you are doing.
+- `FORCE_SYNC`: Run a "sync" even though threshold values have been exceeded
+                (default: `"false"`)
+- `NONINTERACTIVE`: Unless this is "true" the script will ask the user for
+                    confirmation before forcing a sync (default: `"false"`)
+- `RUN_SCRUB`: Run a "scrub" after the "sync" (default: `"false"`)
+- `LOG_FILE`: The full path to the main log file (default: `""` [This will
+              create a temporary file in `/tmp/`])
+- `SNAPRAID_BIN`: The location of the SnapRAID executable binary
+                  (default: `"/usr/local/bin/snapraid"`)
+- `MAIL_BIN`: The location of the mail program's executable binary
+              (default: `"/usr/bin/mutt"`)
+
 
 
 # Usage
@@ -128,7 +176,7 @@ to understand how to properly set up cron with this.
 
 ## Interactive Intervention
 If you only have a single SnapRAID array, and the config file is in the default
-location (see the [defaults below](#environment-variables)), you should be able
+location (see the [defaults above](#environment-variables)), you should be able
 to run a normal "sync" by just executing the following command:
 
 ```bash
@@ -141,9 +189,11 @@ sudo ./snapraid_sync.sh
 ### Force a "sync"
 However, if this is the first time running a "sync", or you have deleted some
 files, it will complain that the threshold values have been exceeded, and the
-script will exit with an error and (if configured) notify by email. To override
-this you will need to set the environment variable `FORCE_SYNC` to "true",
-which can be achieved with either of these two options:
+script will exit with an error. If running in
+"[non-interactive mode](#non-interactive-execution)" the script will also send
+an email to notify you about this problem. To override this you will need to set
+the environment variable `FORCE_SYNC` to "true", which can be achieved with
+either of these two options:
 
 ```bash
 sudo ./snapraid_sync.sh force
@@ -197,10 +247,19 @@ without any issues.
 An example cron configuration file can be found in the `examples/` folder, and
 in that one it is easy to see how the user is set to "root" and the
 `NONINTERACTIVE` variable is set to "true". Additionally a half-finished entry
-of the email address is present, which should be changed to something that
-you want.
+of an email address is present, which should be changed to something that
+you own, since this is the primary method for notifying you when something goes
+wrong while running in non-interactive mode.
 
-It can also be seen that there are two entries present, with two different
+It is also possible to have the entire `LOG_FILE` attached to the notification
+email that is sent. Just make sure that the variable `MAIL_ATTACH_LOG` is set to
+"true" for the log to show up as an file attachment. However, a minor warning
+regarding this is that the "diff" output will be present in this file, and if
+you do not trust you email provider you might not want it to know about the
+names of the files which you have on your computer. Therefore the default of
+this setting is "false".
+
+In the example cron file there are two entries present, with two different
 schedules. The first one will trigger every day, except Monday, at 09:05 and
 22:05 to run a "sync". The second one will only run on Mondays at 13:00, and
 then it will also run a "scrub" in addition to the "sync" (see the trailing
@@ -220,56 +279,15 @@ suggestion might be something like this:
 Something to remember is that cron does not read your user's `.bashrc` file (or
 similar), which means that all the environment variables you want propagated
 to the script needs to be defined in the cron job. For a complete list of all
-available variables, look [below](#environment-variables).
+available variables, look in the [environment section](#environment-variables).
 
 
-## Environment Variables
-These variables are read from the environment when this script is started, which
-makes it easy to quickly point to another configuration file in case you have
-multiple SnapRAID arrays on your system.
 
-Here are the available variables, and their default values if nothing is
-provided from the environment. If you are only using this script for a single
-array/setup on a single computer, it is perfectly fine to go into this script
-and manually change the defaults directly in the code. This way you will not
-need to prepend any additional settings every time you run it.
+# Log Rotation
 
-### Important
-- `EMAIL_ADDRESS`: The address which the notification emails should be sent to
-                   (default: `""` [i.e. disabled])
-- `DELETE_THRESHOLD`: Threshold value for deleted files, if exceeded no sync
-                      will be made (default: `"0"`)
-- `UPDATE_THRESHOLD`: Threshold value for updated files, if exceeded no sync
-                      will be made (default: `"-1"` [`"-1"` for disable])
-- `CONFIG_FILE`: The location of the SnapRAID array configuration file
-                 (default: `"/etc/snapraid.conf"`)
+> This is an extra step you should take some time to complete if you want your
+  server more organized.
 
-### Optional
-- `SCRUB_PERCENT`: The percentage of the array which should be scrubbed when
-                   "scrub" is called (default: `"8"`)
-- `SCRUB_AGE`: Only scrub files which are older than this amount of days
-               (default: `"10"`)
-- `EMAIL_SUBJECT_PREFIX`: A prefix which will be added to the subject line of
-                          all notification mails
-                          (default: `"SnapRAID on $(hostname) - "`)
-- `MAIL_ATTACH_LOG`: Attach the entire log file to the notification mail
-                     (default: `"false"`)
-
-### Additional - Do not change these unless you know what you are doing.
-- `FORCE_SYNC`: Run a "sync" even though threshold values have been exceeded
-                (default: `"false"`)
-- `NONINTERACTIVE`: Unless this is "true" the script will ask the user for
-                    confirmation before forcing a sync (default: `"false"`)
-- `RUN_SCRUB`: Run a "scrub" after the "sync" (default: `"false"`)
-- `LOG_FILE`: The full path to the main log file (default: `""` [This will
-              create a temporary file in `/tmp/`])
-- `SNAPRAID_BIN`: The location of the SnapRAID executable binary
-                  (default: `"/usr/local/bin/snapraid"`)
-- `MAIL_BIN`: The location of the mail program's executable binary
-              (default: `"/usr/bin/mutt"`)
-
-
-## Log Rotation
 During execution this script will produce output to four different files:
 
 - `tmp_file`
@@ -278,9 +296,10 @@ During execution this script will produce output to four different files:
 - `LOG_FILE`
 
 Those in lowercase letters will be created as temporary files in `/tmp/`, and
-deleted after use, while the main `LOG_FILE` will remain after exit. This is
-done so that you will be able to go back and look through the log to find
-details about any errors which might have occurred.
+deleted when the script exits (for whatever reason), while the main `LOG_FILE`
+will remain untouched after completion. This is done so that you will be able
+to go back and look through the log to find details about any errors which might
+have occurred.
 
 However, by default this `LOG_FILE` is also created as a temporary file in
 `/tmp/`, which means that sooner or later the system will remove it from that
@@ -291,7 +310,7 @@ A suggestion is to configure the `LOG_FILE` variable to point to a path like
 this:
 
 ```
-/var/log/snapraid_sync/sync.log
+/var/log/snapraid_sync/array_name.log
 ```
 
 and then configure [`logrotate`][10] to make sure the logs are renamed and
@@ -305,14 +324,6 @@ the `/etc/logrotate.d/` folder. A suggestion could be something like this:
 ```
 /etc/logrotate.d/snapraid_sync
 ```
-
-It is also possible to have this `LOG_FILE` attached to the notification email
-that is sent. Just make sure that the variable `MAIL_ATTACH_LOG` is set to
-"true" for the log to show up as an file attachment. However, a minor warning
-regarding this is that the "diff" output will be present in this file, and if
-you do not trust you email provider you might not want it to know about the
-names of the files which you have on your computer. Therefore the default of
-this setting is "false".
 
 
 
