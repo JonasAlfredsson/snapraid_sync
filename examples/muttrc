@@ -14,7 +14,7 @@ set trash="+[GMail]/Trash"
 
 # Outgoing mail settings
 set smtp_url = "smtps://<user>@gmail.com@smtp.gmail.com:465/"
-set smtp_pass = "supersectret"
+set smtp_pass = "<supersectret>"
 set ssl_force_tls = yes
 
 # Other settings
