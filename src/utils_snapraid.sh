@@ -67,7 +67,7 @@ check_content_files() {
         fi
     fi
 
-    if [ "${nbr_content_files}" -lt "${nbr_parity_files}" ]; then
+    if [ "${nbr_content_files}" -le "${nbr_parity_files}" ]; then
         warning "SnapRAID demands at least 'nbr of parity files + 1' content files"
     fi
 }
