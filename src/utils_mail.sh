@@ -58,18 +58,23 @@ send_mail() {
         add_mail_footer ${tmp_mail}
 
         # If specified, attach the entire log output to the email.
-        local log_attach=""
         if [ "${MAIL_ATTACH_LOG}" == "true" ]; then
-            log_attach="-a ${LOG_FILE} --"
+            info "Sending notification e-mail with attached log file"
+            # Send the email.
+            ${MAIL_BIN} \
+                -s "${EMAIL_SUBJECT_PREFIX} ${1}" \
+                -e 'set content_type="text/html"' \
+                -a "${LOG_FILE}" -- \
+                "${EMAIL_ADDRESS}" < "${tmp_mail}"
+            wait
+        else
+            info "Sending notification e-mail"
+            ${MAIL_BIN} \
+                -s "${EMAIL_SUBJECT_PREFIX} ${1}" \
+                -e 'set content_type="text/html"' \
+                "${EMAIL_ADDRESS}" < "${tmp_mail}"
+            wait
         fi
-
-        # Send the email.
-        ${MAIL_BIN} \
-            -s "${EMAIL_SUBJECT_PREFIX} ${1}" \
-            -e 'set content_type="text/html"' \
-            ${log_attach} \
-            "${EMAIL_ADDRESS}" < ${tmp_mail}
-        wait
 
         # Empty the "mail_body" file, and remove the temporary file.
         echo -n "" > ${mail_body}
