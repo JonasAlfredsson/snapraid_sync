@@ -8,6 +8,7 @@
 
 # Adds a HTML header to the supplied file. This will make the text font, in the
 # mail, monospaced for neater formatting.
+# $1: The path to the destination file.
 add_mail_header() {
     cat <<EOT >> "${1}"
 <html>
@@ -18,6 +19,7 @@ EOT
 
 # Adds a HTML footer to the supplied file. This is necessary to "close" the
 # stuff introduced in the header.
+# $1: The path to the destination file.
 add_mail_footer() {
     cat <<EOT >> "${1}"
 </pre>
@@ -36,6 +38,7 @@ get_status_line() {
 }
 
 # Add some decoration around the log output if it is included in the mail body.
+# $1: The path to the file which should contain a few log messages.
 email_add_short_log() {
     cat <<EOT >> "${mail_body}"
 ===============BEGIN LOG===============
@@ -45,6 +48,8 @@ EOT
 }
 
 # The main function used for actually sending the mails.
+# $1: A string which will be appended to the e-main subject line after anything
+#     that is defined inside "${EMAIL_SUBJECT_PREFIX}".
 send_mail() {
     if [ -z "${EMAIL_ADDRESS}" ]; then
         warning "No email address defined; cannot send any mails"
@@ -97,6 +102,7 @@ EOT
 
 # Send a warning email notifying the user that something went wrong during
 # either syncing or scrubbing.
+# $1: A string that shortly summarizes what went wrong.
 email_no_ok() {
     cat <<EOT >> "${mail_body}"
 ${1}

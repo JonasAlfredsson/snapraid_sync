@@ -7,6 +7,8 @@
 ################################################################################
 
 # Helper functions used for printing messages to stdout and a log file.
+# $1: The log level.
+# $2: The log message. (This is $1 in the remaining functions.)
 log() {
     echo "$(date +%Y-%m-%dT%H:%M:%S%z) ${1} - ${2}" | tee -a "${LOG_FILE}"
 }

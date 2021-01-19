@@ -74,6 +74,9 @@ check_content_files() {
 
 # Check that the "threshold" environment variables are set, are integers and
 # are within their respective valid range.
+# $1: The name of the environment variable to check.
+# $2: The value of the environment variable to check.
+# $3: The minimum value this variable may have.
 check_threshold_values() {
     local str="OK"
     if [ -z "${2}" ]; then
@@ -266,6 +269,8 @@ check_snapraid_status() {
 
 # A switch case for easier management of running SnapRAID, and controlling where
 # its output goes.
+# $1: The action SnapRAID should perform.
+# $2: One of the case options regarding where to store output from SnapRAID.
 run_snapraid() {
     echo ""
     case "${2}" in
