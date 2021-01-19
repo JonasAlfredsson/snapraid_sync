@@ -8,7 +8,7 @@
 
 # Helper functions used for printing messages to stdout and a log file.
 log() {
-    echo "$(date +%Y-%m-%dT%H:%M:%S%z) ${1} - ${2}" | tee -a ${LOG_FILE}
+    echo "$(date +%Y-%m-%dT%H:%M:%S%z) ${1} - ${2}" | tee -a "${LOG_FILE}"
 }
 info() {
     log "[INFO   ]" "${1}"
@@ -26,9 +26,9 @@ mail_body="$(mktemp)"
 
 # Helper function to print an exit message and clean up after us on every exit.
 clean_exit() {
-    info "Exiting script $(basename "${0}")"
-    rm ${tmp_file}
-    rm ${mail_body}
+    info "Exiting script $(basename ${0})"
+    rm "${tmp_file}"
+    rm "${mail_body}"
 }
 
 # Make bash listen to the SIGTERM and SIGINT kill signals, and make them trigger

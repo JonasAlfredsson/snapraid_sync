@@ -9,7 +9,7 @@
 # Find all parity files and check if they exist. Exit if there are no valid
 # parity files present.
 parse_parity_files() {
-    cat ${CONFIG_FILE} | sed -r -n 's/^[2-6]?-?parity (.+)$/\1/p'
+    cat "${CONFIG_FILE}" | sed -r -n 's/^[2-6]?-?parity (.+)$/\1/p'
 }
 check_parity_files() {
     nbr_parity_files=0
@@ -30,7 +30,7 @@ check_parity_files() {
         if [ "${FORCE_SYNC,,}" == "true" ]; then
             warning "The 'force' argument is true; overriding this error"
         else
-            echo "${str}." >> ${mail_body}
+            echo "${str}." >> "${mail_body}"
             send_mail "ERROR"
             exit 1
         fi
@@ -40,7 +40,7 @@ check_parity_files() {
 # Find all content files and check if they exist. Exit if there are no valid
 # content files present.
 parse_content_files() {
-    cat ${CONFIG_FILE} | sed -r -n 's/^content (.+)$/\1/p'
+    cat "${CONFIG_FILE}" | sed -r -n 's/^content (.+)$/\1/p'
 }
 check_content_files() {
     nbr_content_files=0
@@ -61,7 +61,7 @@ check_content_files() {
         if [ "${FORCE_SYNC,,}" == "true" ]; then
             warning "The 'force' argument is true; overriding this error"
         else
-            echo "${str}." >> ${mail_body}
+            echo "${str}." >> "${mail_body}"
             send_mail "ERROR"
             exit 1
         fi
@@ -86,7 +86,7 @@ check_threshold_values() {
 
     if [ "${str}" != "OK" ]; then
         error "${str}"
-        echo "${str}." >> ${mail_body}
+        echo "${str}." >> "${mail_body}"
         send_mail "ERROR"
         exit 1
     fi
@@ -109,7 +109,7 @@ check_integrity() {
         check_content_files
     else
         error "Could not find the config file '${CONFIG_FILE}'"
-        echo "Could not find the config file." >> ${mail_body}
+        echo "Could not find the config file." >> "${mail_body}"
         send_mail "ERROR"
         exit 1
     fi
@@ -135,15 +135,15 @@ sub_zero_touch(){
 check_diff() {
     info "Running SnapRAID 'diff' command"
     run_snapraid diff tmp_file
-    cat "${tmp_file}" >> ${LOG_FILE}  # Add to main log file as well.
+    cat "${tmp_file}" >> "${LOG_FILE}"  # Add to main log file as well.
     info "SnapRAID 'diff' finished"
 
     # Try to extract all the values.
-    ADD_COUNT=$(cat ${tmp_file} | sed -r -n 's/^\s*([0-9]+) added$/\1/p')
-    DEL_COUNT=$(cat ${tmp_file} | sed -r -n 's/^\s*([0-9]+) removed$/\1/p')
-    UPDATE_COUNT=$(cat ${tmp_file} | sed -r -n 's/^\s*([0-9]+) updated$/\1/p')
-    MOVE_COUNT=$(cat ${tmp_file} | sed -r -n 's/^\s*([0-9]+) moved$/\1/p')
-    COPY_COUNT=$(cat ${tmp_file} | sed -r -n 's/^\s*([0-9]+) copied$/\1/p')
+    ADD_COUNT=$(cat "${tmp_file}" | sed -r -n 's/^\s*([0-9]+) added$/\1/p')
+    DEL_COUNT=$(cat "${tmp_file}" | sed -r -n 's/^\s*([0-9]+) removed$/\1/p')
+    UPDATE_COUNT=$(cat "${tmp_file}" | sed -r -n 's/^\s*([0-9]+) updated$/\1/p')
+    MOVE_COUNT=$(cat "${tmp_file}" | sed -r -n 's/^\s*([0-9]+) moved$/\1/p')
+    COPY_COUNT=$(cat "${tmp_file}" | sed -r -n 's/^\s*([0-9]+) copied$/\1/p')
 
     # Sanity check to make sure that we were able to get all expected values
     # from the output of the 'diff' job.
@@ -156,9 +156,9 @@ check_diff() {
         error "A=${ADD_COUNT}, D=${DEL_COUNT}, U=${UPDATE_COUNT}, M=${MOVE_COUNT}, C=${COPY_COUNT}"
 
         # Assemble an email with these details.
-        echo "${str}." >> ${mail_body}
-        echo "" >> ${mail_body}
-        email_add_short_log ${tmp_file}
+        echo "${str}." >> "${mail_body}"
+        echo "" >> "${mail_body}"
+        email_add_short_log "${tmp_file}"
         send_mail "ERROR"
         exit 1
     fi
@@ -210,7 +210,7 @@ should_sync() {
     else
         info "No changes detected; not running 'sync' job"
     fi
-    return ${sync}
+    return "${sync}"
 }
 
 # Function to check if all requirements for a 'scrub' are fulfilled.
@@ -222,7 +222,7 @@ should_scrub() {
         else
             local str="A 'scrub' is requested, but scrub percentage is set to ${SCRUB_PERCENT}; will not scrub"
             warning "${str}"
-            echo "${str}." >> ${mail_body}
+            echo "${str}." >> "${mail_body}"
             send_mail "WARNING"
         fi
     fi
@@ -235,17 +235,17 @@ should_scrub() {
 check_snapraid_status() {
     # Get extra information from the 'status' command.
     run_snapraid status tmp_file
-    local no_error=$(cat ${tmp_file} | tail -n 6 | grep -oP 'No error detected.' || (echo "false"))
+    local no_error=$(cat "${tmp_file}" | tail -n 6 | grep -oP 'No error detected.' || (echo "false"))
 
     # See if "Everything OK" is present in the log output.
-    local is_ok=$(cat ${LOG_FILE} | tail -n $(( ${nbr_content_files} * 2 + 8 )) | grep -oP 'Everything OK' || (echo "false"))
+    local is_ok=$(cat "${LOG_FILE}" | tail -n $(( ${nbr_content_files} * 2 + 8 )) | grep -oP 'Everything OK' || (echo "false"))
     if [ "${is_ok}" != "Everything OK" ]; then
         # If the "OK" message does not show there is a chance that there was
         # just "Nothing to do".
-        local nothing_to_do=$(cat ${LOG_FILE} | tail -n 8 | grep -oP 'Nothing to do' || (echo "false"))
+        local nothing_to_do=$(cat "${LOG_FILE}" | tail -n 8 | grep -oP 'Nothing to do' || (echo "false"))
         if [ "${nothing_to_do}" == "Nothing to do" ]; then
-            echo "SnapRAID reported 'Nothing to do'" >> ${mail_body}
-            echo "" >> ${mail_body}
+            echo "SnapRAID reported 'Nothing to do'" >> "${mail_body}"
+            echo "" >> "${mail_body}"
         else
             warning "Could not find the string 'Everything OK' at the end of the log; aborting since something might be wrong"
             email_no_ok "Could not find the string 'Everything OK' at the end of the log."
@@ -270,16 +270,16 @@ run_snapraid() {
     echo ""
     case "${2}" in
         "")
-            ${SNAPRAID_BIN} -c ${CONFIG_FILE} ${1}
+            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" "${1}"
             wait
             ;;
         "tmp_file")
             echo -n "" > ${tmp_file}
-            ${SNAPRAID_BIN} -c ${CONFIG_FILE} ${1} 2>&1 | tee -a ${tmp_file}
+            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" "${1}" 2>&1 | tee -a "${tmp_file}"
             wait
             ;;
         "log")
-            ${SNAPRAID_BIN} -c ${CONFIG_FILE} ${1} 2>&1 | tee -a ${LOG_FILE}
+            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" "${1}" 2>&1 | tee -a "${LOG_FILE}"
             wait
             ;;
         *)

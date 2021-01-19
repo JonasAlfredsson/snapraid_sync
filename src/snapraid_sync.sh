@@ -67,32 +67,32 @@ main() {
     # Determine if a 'sync' should be run.
     if should_sync; then
         info "Running sync job"
-        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Starting sync job" >> ${mail_body}
-        echo "" >> ${mail_body}
+        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Starting sync job" >> "${mail_body}"
+        echo "" >> "${mail_body}"
 
         # Add the 'diff' output to the mail.
-        cat ${tmp_file} | tail -n 8 | head -n 7 >> ${mail_body}
-        echo "" >> ${mail_body}
+        cat "${tmp_file}" | tail -n 8 | head -n 7 >> "${mail_body}"
+        echo "" >> "${mail_body}"
 
         # Run the sync.
         run_snapraid sync log
 
         info "Sync job finished"
-        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Sync job finished" >> ${mail_body}
-        echo "" >> ${mail_body}
+        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Sync job finished" >> "${mail_body}"
+        echo "" >> "${mail_body}"
         check_snapraid_status "sync"
     fi
 
     # Determine if a 'scrub' should be run.
     if should_scrub; then
         info "Running scrub job - this might take a very long time"
-        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Starting scrub job" >> ${mail_body}
+        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Starting scrub job" >> "${mail_body}"
 
         run_snapraid "scrub -p ${SCRUB_PERCENT} -o ${SCRUB_AGE}" log
 
         info "Scrub job finished"
-        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Scrub job finished" >> ${mail_body}
-        echo "" >> ${mail_body}
+        echo "$(date +%Y-%m-%dT%H:%M:%S%z) - Scrub job finished" >> "${mail_body}"
+        echo "" >> "${mail_body}"
 
         check_snapraid_status "scrub"
     fi
