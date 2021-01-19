@@ -82,14 +82,6 @@ send_mail() {
     fi
 }
 
-# Send a short mail when a serious error occurs.
-email_error() {
-    echo "${1}" >> "${mail_body}"
-    echo "" >> "${mail_body}"
-    email_add_short_log "${LOG_FILE}"
-    send_mail "ERROR"
-}
-
 # Send a detailed email explaining why we will not sync.
 email_no_sync() {
     cat <<EOT >> "${mail_body}"
