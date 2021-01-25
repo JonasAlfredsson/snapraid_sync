@@ -275,16 +275,16 @@ run_snapraid() {
     echo ""
     case "${2}" in
         "")
-            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" "${1}"
+            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" ${1}
             wait
             ;;
         "tmp_file")
             echo -n "" > ${tmp_file}
-            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" "${1}" 2>&1 | tee -a "${tmp_file}"
+            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" ${1} 2>&1 | tee -a "${tmp_file}"
             wait
             ;;
         "log")
-            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" "${1}" 2>&1 | tee -a "${LOG_FILE}"
+            ${SNAPRAID_BIN} -c "${CONFIG_FILE}" ${1} 2>&1 | tee -a "${LOG_FILE}"
             wait
             ;;
         *)
